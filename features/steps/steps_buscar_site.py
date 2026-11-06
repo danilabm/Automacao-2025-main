@@ -75,19 +75,18 @@ def step_verify_site(context):
             
             # Verifica se a URL contém "jogajunto" ou se carregou o site
             current_url = context.driver.current_url.lower()
-            if "jogajunto" in current_url:
-                print("🌐 Site do Instituto Joga Junto aberto com sucesso!")
-                print(f"🔗 URL: {current_url}")
-            else:
-                print(f"⚠️ URL atual não contém 'jogajunto': {current_url}")
-                # Mesmo assim, consideramos sucesso se chegou até aqui
-                print("✅ Navegação concluída com sucesso!")
+            # O teste só passa se o site aberto for de fato o do Instituto
+            assert "jogajunto" in current_url, f"❌ URL inesperada: {current_url}"
+            print("🌐 Site do Instituto Joga Junto aberto com sucesso!")
+            print(f"🔗 URL: {current_url}")
         else:
             # Tenta encontrar resultados de outra forma
             resultados_alternativos = context.driver.find_elements(By.CSS_SELECTOR, ".g h3")
             if len(resultados_alternativos) > 0:
                 resultados_alternativos[0].click()
                 time.sleep(5)
+                current_url = context.driver.current_url.lower()
+                assert "jogajunto" in current_url, f"❌ URL inesperada: {current_url}"
                 print("✅ Site aberto com seletor alternativo!")
             else:
                 raise AssertionError("❌ Nenhum resultado encontrado na pesquisa.")
